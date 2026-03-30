@@ -1,15 +1,18 @@
-apiVersion: app/v1
+apiVersion: v1
 kind: Service
 metadata:
-  name: my-devops-project-service   
+  name: my-devops-project
   labels:
     app: my-devops-project
 spec:
-  type: nodeport
+  type: ClusterIP
+  
   selector:
     app: my-devops-project
   ports:
-    - protocol: TCP
-      port: 80
+    - name: http
+      port: 5000
       targetPort: 5000
+      protocol: TCP
+  
   

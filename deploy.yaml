@@ -14,9 +14,25 @@ spec:
       labels:
         app: my-devops-project
     spec:
+      
       containers:
       - name: my-devops-project-container
+      envFrom:
+      - configMapRef:
+          name: my-devops-project-configmap
+          
         image: hemanthf5/my-devops-project:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 5000
+        volumeMounts:
+        - name: secrets-store-inline
+          mountPath: "/mnt/secrets-store"
+          readOnly: true  
+      volumes:
+      - name: secrets-store-inline
+        csi:
+          driver: secrets-store.csi.x-k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "my-devops-project-secretproviderclass"  

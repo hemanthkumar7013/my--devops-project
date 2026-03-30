@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-devops-project-configmap
+data:
+  DB_ENGINE: "mysql"
+  DB_HOST: "hemanthdb.co50se2i4ktb.us-east-1.rds.amazonaws.com"
+  DB_NAME: "hemanthdb"
+  CONNECT_TIMEOUT: "5"
