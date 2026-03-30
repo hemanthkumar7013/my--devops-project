@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: my-devops-project-container
-        image: my-devops-project-image:latest
-        imagePullPolicy: IfNotPresent
+        image: hemanthf5/my-devops-project:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
