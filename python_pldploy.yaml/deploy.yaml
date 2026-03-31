@@ -14,25 +14,32 @@ spec:
       labels:
         app: my-devops-project
     spec:
-      
+      serviceAccountName: my-devops-project-sa
       containers:
       - name: my-devops-project-container
-      envFrom:
-      - configMapRef:
-          name: my-devops-project-configmap
-          
         image: hemanthf5/my-devops-project:latest
         imagePullPolicy: Always
+        envFrom:
+        - configMapRef:
+            name: my-devops-project-configmap
+        # --- FIXED ALIGNMENT BELOW ---
         ports:
         - containerPort: 5000
         volumeMounts:
         - name: secrets-store-inline
           mountPath: "/mnt/secrets-store"
           readOnly: true  
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+            export db_user=$(cat /mnt/secrets-store/db_user);
+            export db_password=$(cat /mnt/secrets-store/db_password);
+            echo "Starting devops service with secure DB credentials";
+            exec python app.py  
       volumes:
       - name: secrets-store-inline
         csi:
           driver: secrets-store.csi.x-k8s.io
           readOnly: true
           volumeAttributes:
-            secretProviderClass: "my-devops-project-secretproviderclass"  
+            secretProviderClass: "my-devops-project-secretproviderclass"
