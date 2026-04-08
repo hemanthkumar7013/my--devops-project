@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 import mysql.connector
 import os
 
@@ -6,10 +6,11 @@ app = Flask(__name__)
 
 def get_db_connection():
     return mysql.connector.connect(
-        host=os.environ['DB_HOST'],
-        user=os.environ['DB_USER'],
-        password=os.environ['DB_PASSWORD'],
-        database=os.environ['DB_NAME']
+        host=os.environ.get('DB_HOST'),
+        user=os.environ.get('DB_USER'),
+        password=os.environ.get('DB_PASSWORD'),
+        database=os.environ.get('DB_NAME'),
+        connection_timeout=5
     )
 
 @app.route('/')
@@ -18,26 +19,49 @@ def home():
 
 @app.route('/add')
 def add_user():
+    db = None
+    cursor = None
     try:
+        name = request.args.get('name', 'Hemanth')
+
         db = get_db_connection()
         cursor = db.cursor()
-        cursor.execute("CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255))")
-        cursor.execute("INSERT INTO users (name) VALUES ('Hemanth')")
+
+        cursor.execute("INSERT INTO users (name) VALUES (%s)", (name,))
         db.commit()
-        return "User added to RDS ✅"
+
+        return f"User {name} added to RDS ✅"
+
     except Exception as e:
         return f"Error: {str(e)}"
 
+    finally:
+        if cursor:
+            cursor.close()
+        if db:
+            db.close()
+
 @app.route('/users')
 def users():
+    db = None
+    cursor = None
     try:
         db = get_db_connection()
         cursor = db.cursor()
+
         cursor.execute("SELECT * FROM users")
         result = cursor.fetchall()
+
         return str(result)
+
     except Exception as e:
         return f"Error: {str(e)}"
+
+    finally:
+        if cursor:
+            cursor.close()
+        if db:
+            db.close()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
